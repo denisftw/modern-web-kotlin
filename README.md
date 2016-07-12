@@ -10,6 +10,7 @@ The [`starting-point`](https://github.com/denisftw/modern-web-kotlin/releases/ta
 * Querying remote services with the [Fuel](https://github.com/kittinunf/Fuel)
 * Using [Kovenant](https://github.com/mplatvoet/kovenant) Promises for doing asynchronous tasks
 * Using [Gradle](https://gradle.org/) for enabling efficient workflow
+* Using [Thymeleaf](http://www.thymeleaf.org/) templates
 * Integrating Vert.x with [React](https://facebook.github.io/react/) and [Webpack](https://webpack.github.io/)
 * Working with JSON
 
