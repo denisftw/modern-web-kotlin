@@ -1,0 +1,39 @@
+{
+  "name": "modern-web-kotlin",
+  "version": "1.0.0",
+  "description": "Frontend code for the Modern Web Development with Scala book",
+  "main": "index.js",
+  "scripts": {
+    "watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/denisftw/modern-web-kotlin.git"
+  },
+  "author": "denisftw",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/denisftw/modern-web-kotlin/issues"
+  },
+  "homepage": "https://github.com/denisftw/modern-web-kotlin#readme",
+  "devDependencies": {
+    "babel-core": "^6.10.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-0": "^6.5.0",
+    "css-loader": "^0.23.1",
+    "exports-loader": "^0.6.3",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "imports-loader": "^0.6.5",
+    "node-sass": "^3.8.0",
+    "sass-loader": "^4.0.0",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.1"
+  },
+  "dependencies": {
+    "axios": "^0.12.0",
+    "react": "^15.2.1",
+    "react-dom": "^15.2.1"
+  }
+}

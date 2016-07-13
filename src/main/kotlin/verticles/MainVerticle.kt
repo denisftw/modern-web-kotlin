@@ -1,10 +1,12 @@
 package verticles
 
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.StaticHandler
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
 import models.SunWeatherInfo
 import nl.komponents.kovenant.functional.bind
@@ -21,8 +23,11 @@ class MainVerticle : AbstractVerticle() {
     val logger = LoggerFactory.getLogger("VertxServer")
     val weatherService = WeatherService()
     val sunService = SunService()
+    val staticHandler = StaticHandler.create().setWebRoot("public").setCachingEnabled(false)
+    val jsonMapper = jacksonObjectMapper()
 
-    router.get("/home").handler { ctx ->
+    router.route("/public/*").handler(staticHandler)
+    router.get("/api/data").handler { ctx ->
       val lat = -33.8830
       val lon = 151.2167
       val sunInfoP = sunService.getSunInfo(lat, lon)
@@ -31,21 +36,20 @@ class MainVerticle : AbstractVerticle() {
         temperatureP.map { temp -> SunWeatherInfo(sunInfo, temp) }
       }
       sunWeatherInfoP.success { info ->
-        ctx.put("sunrise", info.sunInfo.sunrise)
-        ctx.put("sunset", info.sunInfo.sunset)
-        ctx.put("temperature", info.temperature)
-        templateEngine.render(ctx, "public/templates/index.html", { buf ->
-          if (buf.failed()) {
-            logger.error("Template rendering failed", buf.cause())
-          } else {
-            val response = ctx.response()
-            response.end(buf.result())
-          }
-        })
+        val json = jsonMapper.writeValueAsString(info)
+        val response = ctx.response()
+        response.end(json)
       }
-      sunWeatherInfoP.fail { error ->
-        logger.error("Remote server querying failed", error)
-      }
+    }
+    router.get("/home").handler { ctx ->
+      templateEngine.render(ctx, "public/templates/index.html", { buf ->
+        if (buf.failed()) {
+          logger.error("Template rendering failed", buf.cause())
+        } else {
+          val response = ctx.response()
+          response.end(buf.result())
+        }
+      })
     }
     router.get("/").handler { routingContext ->
       val response = routingContext.response()

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Home page</title>
+    <link rel="stylesheet" href="/public/compiled/styles.css" media="screen">
 </head>
 <body>
-<h1>Hello Thymeleaf!</h1>
-<div>Sunrise time: <span th:text="${sunrise}">01/01/2016 2:00 PM</span></div>
-<div>Sunset time: <span th:text="${sunset}">01/01/2016 2:00 PM</span></div>
-<div>Current temperature: <span th:text="${temperature}">0</span></div>
+    <h1>Hello Thymeleaf!</h1>
+    <div id="reactView"></div>
 </body>
+<script src="/public/compiled/bundle.js"></script>
 </html>
