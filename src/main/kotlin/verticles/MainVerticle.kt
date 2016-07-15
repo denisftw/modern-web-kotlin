@@ -2,30 +2,79 @@ package verticles
 
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.vertx.core.AbstractVerticle
-import io.vertx.core.Future
+import com.zaxxer.hikari.HikariDataSource
+import io.vertx.core.*
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
-import io.vertx.ext.web.handler.StaticHandler
+import io.vertx.ext.web.RoutingContext
+import io.vertx.ext.web.handler.*
+import io.vertx.ext.web.sstore.LocalSessionStore
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
-import models.SunWeatherInfo
 import nl.komponents.kovenant.functional.bind
 import nl.komponents.kovenant.functional.map
+import org.funktionale.option.Option
+import org.funktionale.option.toOption
+import services.MigrationService
 import services.SunService
 import services.WeatherService
+import models.*
+import services.DatabaseAuthProvider
 
 
 class MainVerticle : AbstractVerticle() {
+
+  private var dataSource: Option<HikariDataSource> = Option.None
+
+  private fun initDataSource(config: DataSourceConfig) {
+    val hikariDS = HikariDataSource()
+    hikariDS.username = config.user
+    hikariDS.password = config.password
+    hikariDS.jdbcUrl = config.jdbcUrl
+    dataSource = hikariDS.toOption()
+  }
+
+  override fun stop(stopFuture: Future<Void>?) {
+    dataSource.map { it.close() }
+  }
+
   override fun start(startFuture: Future<Void>?) {
     val server = vertx.createHttpServer()
     val router = Router.router(vertx)
+
     val templateEngine = ThymeleafTemplateEngine.create()
     val logger = LoggerFactory.getLogger("VertxServer")
     val weatherService = WeatherService()
     val sunService = SunService()
-    val staticHandler = StaticHandler.create().setWebRoot("public").setCachingEnabled(false)
     val jsonMapper = jacksonObjectMapper()
 
+    val serverConfig = jsonMapper.readValue(config().
+        getJsonObject("server").encode(), ServerConfig::class.java)
+    val serverPort = serverConfig.port
+    val enableCaching = serverConfig.caching
+
+    val dataSourceConfig = jsonMapper.readValue(config().
+      getJsonObject("dataSource").encode(), DataSourceConfig::class.java)
+    initDataSource(dataSourceConfig)
+
+    val migrationService = MigrationService(dataSource)
+    val migrationResult = migrationService.migrate()
+    migrationResult.fold({ exc ->
+      logger.fatal("Exception occurred while performing migration", exc)
+      vertx.close()
+    },{ res ->
+      logger.debug("Migration successful or not needed")
+    })
+
+    val staticHandler = StaticHandler.create().
+        setWebRoot("public").setCachingEnabled(enableCaching)
+
+    val authProvider = DatabaseAuthProvider(dataSource.get(), jsonMapper)
+    router.route().handler(CookieHandler.create())
+    router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
+    router.route().handler(UserSessionHandler.create(authProvider))
+    router.route("/hidden/*").handler(RedirectAuthHandler.create(authProvider))
+    router.route("/login").handler(BodyHandler.create());
+    router.route("/login").handler(FormLoginHandler.create(authProvider))
     router.route("/public/*").handler(staticHandler)
     router.get("/api/data").handler { ctx ->
       val lat = -33.8830
@@ -41,25 +90,34 @@ class MainVerticle : AbstractVerticle() {
         response.end(json)
       }
     }
-    router.get("/home").handler { ctx ->
-      templateEngine.render(ctx, "public/templates/index.html", { buf ->
+    fun renderTemplate(ctx: RoutingContext, template: String) {
+      templateEngine.render(ctx, template, { buf ->
+        val response = ctx.response()
         if (buf.failed()) {
           logger.error("Template rendering failed", buf.cause())
+          response.setStatusCode(500).end()
         } else {
-          val response = ctx.response()
           response.end(buf.result())
         }
       })
     }
+    router.get("/hidden/admin").handler { ctx ->
+      renderTemplate(ctx.put("username",
+          ctx.user().principal().getString("username")),
+          "public/templates/admin.html")
+    }
+    router.get("/loginpage").handler { ctx ->
+      renderTemplate(ctx,"public/templates/login.html" ) }
+    router.get("/home").handler { ctx ->
+      renderTemplate(ctx, "public/templates/index.html") }
     router.get("/").handler { routingContext ->
       val response = routingContext.response()
       response.end("Hello World")
     }
 
-
-    server.requestHandler{ router.accept(it) }.listen(8080, { handler ->
+    server.requestHandler{ router.accept(it) }.listen(serverPort, { handler ->
       if (!handler.succeeded()) {
-        System.err.println("Failed to listen on port 8080")
+        System.err.println("Failed to listen on port $serverPort")
       }
     })
   }

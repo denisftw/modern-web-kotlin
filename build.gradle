@@ -8,6 +8,11 @@ buildscript {
   ext.kotson_version = '2.3.0'
   ext.joda_version = '2.9.4'
   ext.jackson_version = '2.7.5'
+  ext.hikari_version = '2.4.7'
+  ext.flyway_version = '4.0.3'
+  ext.pgjdbc_version = '9.4.1208.jre7'
+  ext.jbcrypt_version = '0.4.1'
+  ext.kotliquery_version = '1.1.0'
 
   repositories {
     jcenter()
@@ -39,6 +44,11 @@ dependencies {
   compile "com.github.salomonbrys.kotson:kotson:$kotson_version"
   compile "joda-time:joda-time:$joda_version"
   compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+  compile "org.flywaydb:flyway-core:$flyway_version"
+  compile "com.zaxxer:HikariCP:$hikari_version"
+  compile "org.postgresql:postgresql:$pgjdbc_version"
+  compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
+  compile "com.github.seratch:kotliquery:$kotliquery_version"
 }
 
 mainClassName = 'io.vertx.core.Launcher'
@@ -49,7 +59,10 @@ def watchForChange = 'src/**/*.kt'
 
 def doOnChange = 'gradle classes'
 
+def configurationFile = 'conf/development.json'
+
 run {
   args = ['run', mainVerticleName, "--redeploy=$watchForChange",
-          "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange"]
+          "--launcher-class=$mainClassName", "--on-redeploy=$doOnChange",
+          "-conf $configurationFile"]
 }
