@@ -15,6 +15,9 @@ In particular the book illustrates the following:
 * Using [Thymeleaf](http://www.thymeleaf.org/) templates
 * Integrating Vert.x with [React](https://facebook.github.io/react/), [Babel](https://babeljs.io/), [Sass](http://sass-lang.com/) and [Webpack](https://webpack.github.io/)
 * Serving JSON with [Jackson Kotlin module](https://github.com/FasterXML/jackson-module-kotlin) and [Kotson](https://github.com/SalomonBrys/Kotson)
+* Storing data in [PostgreSQL](https://www.postgresql.org/)
+* Migrating data with [Flyway](https://flywaydb.org/)
+* Querying data with [KotliQuery](https://github.com/seratch/kotliquery)
 
 ## Versions used
 
