@@ -6,3 +6,4 @@
 node_modules
 public/compiled
 npm-debug.log
+/logs/*log

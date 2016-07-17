@@ -13,6 +13,9 @@ buildscript {
   ext.pgjdbc_version = '9.4.1208.jre7'
   ext.jbcrypt_version = '0.4.1'
   ext.kotliquery_version = '1.1.0'
+  ext.kotlintest_version = '1.3.3'
+  ext.logback_version = '1.1.7'
+  ext.slf4j_version = '1.7.21'
 
   repositories {
     jcenter()
@@ -49,6 +52,9 @@ dependencies {
   compile "org.postgresql:postgresql:$pgjdbc_version"
   compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
   compile "com.github.seratch:kotliquery:$kotliquery_version"
+  testCompile "io.kotlintest:kotlintest:$kotlintest_version"
+  compile "ch.qos.logback:logback-classic:$logback_version"
+  compile "org.slf4j:slf4j-api:$slf4j_version"
 }
 
 mainClassName = 'io.vertx.core.Launcher'

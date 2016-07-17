@@ -17,7 +17,6 @@ import org.funktionale.either.eitherTry
 import org.funktionale.option.getOrElse
 import org.funktionale.option.toOption
 import org.mindrot.jbcrypt.BCrypt
-import java.util.*
 
 class DatabaseAuthProvider(val dataSource: HikariDataSource, val jsonMapper: ObjectMapper) : AuthProvider {
   override fun authenticate(authInfoJson: JsonObject?, resultHandler: Handler<AsyncResult<User>>?) {

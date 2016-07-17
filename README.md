@@ -18,6 +18,8 @@ In particular the book illustrates the following:
 * Storing data in [PostgreSQL](https://www.postgresql.org/)
 * Migrating data with [Flyway](https://flywaydb.org/)
 * Querying data with [KotliQuery](https://github.com/seratch/kotliquery)
+* Testing with [KotlinTest](https://github.com/kotlintest/kotlintest)
+* Logging with [Logback](http://logback.qos.ch/)
 
 ## Versions used
 

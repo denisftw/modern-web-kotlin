@@ -24,6 +24,7 @@ import services.DatabaseAuthProvider
 class MainVerticle : AbstractVerticle() {
 
   private var dataSource: Option<HikariDataSource> = Option.None
+  private val logger = LoggerFactory.getLogger(this.javaClass.name)
 
   private fun initDataSource(config: DataSourceConfig) {
     val hikariDS = HikariDataSource()
@@ -38,11 +39,12 @@ class MainVerticle : AbstractVerticle() {
   }
 
   override fun start(startFuture: Future<Void>?) {
+    logger.info("Starting the server")
     val server = vertx.createHttpServer()
     val router = Router.router(vertx)
 
     val templateEngine = ThymeleafTemplateEngine.create()
-    val logger = LoggerFactory.getLogger("VertxServer")
+
     val weatherService = WeatherService()
     val sunService = SunService()
     val jsonMapper = jacksonObjectMapper()
