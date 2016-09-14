@@ -12,8 +12,6 @@ import io.vertx.ext.web.sstore.LocalSessionStore
 import io.vertx.ext.web.templ.ThymeleafTemplateEngine
 import nl.komponents.kovenant.functional.bind
 import nl.komponents.kovenant.functional.map
-import org.funktionale.option.Option
-import org.funktionale.option.toOption
 import services.MigrationService
 import services.SunService
 import services.WeatherService
@@ -23,19 +21,20 @@ import services.DatabaseAuthProvider
 
 class MainVerticle : AbstractVerticle() {
 
-  private var dataSource: Option<HikariDataSource> = Option.None
+  private var maybeDataSource: HikariDataSource? = null
   private val logger = LoggerFactory.getLogger(this.javaClass.name)
 
-  private fun initDataSource(config: DataSourceConfig) {
+  private fun initDataSource(config: DataSourceConfig): HikariDataSource {
     val hikariDS = HikariDataSource()
     hikariDS.username = config.user
     hikariDS.password = config.password
     hikariDS.jdbcUrl = config.jdbcUrl
-    dataSource = hikariDS.toOption()
+    maybeDataSource = hikariDS
+    return hikariDS
   }
 
   override fun stop(stopFuture: Future<Void>?) {
-    dataSource.map { it.close() }
+    maybeDataSource?.close()
   }
 
   override fun start(startFuture: Future<Void>?) {
@@ -56,7 +55,7 @@ class MainVerticle : AbstractVerticle() {
 
     val dataSourceConfig = jsonMapper.readValue(config().
       getJsonObject("dataSource").encode(), DataSourceConfig::class.java)
-    initDataSource(dataSourceConfig)
+    val dataSource = initDataSource(dataSourceConfig)
 
     val migrationService = MigrationService(dataSource)
     val migrationResult = migrationService.migrate()
@@ -70,7 +69,7 @@ class MainVerticle : AbstractVerticle() {
     val staticHandler = StaticHandler.create().
         setWebRoot("public").setCachingEnabled(enableCaching)
 
-    val authProvider = DatabaseAuthProvider(dataSource.get(), jsonMapper)
+    val authProvider = DatabaseAuthProvider(dataSource, jsonMapper)
     router.route().handler(CookieHandler.create())
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
     router.route().handler(UserSessionHandler.create(authProvider))

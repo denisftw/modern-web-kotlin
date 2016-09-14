@@ -14,8 +14,6 @@ import kotliquery.using
 import models.AuthInfo
 import models.DatabaseUser
 import org.funktionale.either.eitherTry
-import org.funktionale.option.getOrElse
-import org.funktionale.option.toOption
 import org.mindrot.jbcrypt.BCrypt
 
 class DatabaseAuthProvider(val dataSource: HikariDataSource, val jsonMapper: ObjectMapper) : AuthProvider {
@@ -24,8 +22,8 @@ class DatabaseAuthProvider(val dataSource: HikariDataSource, val jsonMapper: Obj
     val userT = eitherTry { using(sessionOf(dataSource)) { session ->
       val query = queryOf("select * from users where user_code = ?", authInfo.username)
       val maybeUser = query.map { DatabaseUser.fromDb(it) }.asSingle.
-          runWithSession(session).toOption()
-      maybeUser.getOrElse { throw Exception("User ${authInfo.username} not found!") }
+          runWithSession(session)
+      maybeUser ?: throw Exception("User ${authInfo.username} not found!")
     }}
     userT.fold({ exc ->
       val result = CompositeFuture.factory.failedFuture<User>(exc)
