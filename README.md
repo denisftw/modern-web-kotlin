@@ -1,6 +1,6 @@
 # Modern Web Development with Kotlin
 
-This is the companion code repository for the [Modern Web Development with Kotlin](https://leanpub.com/modern-web-development-with-kotlin) I'm currently writing.
+This is the companion code repository for the [Modern Web Development with Kotlin](https://leanpub.com/modern-web-development-with-kotlin) book published by Leanpub.
 
 ## Staring point
 
