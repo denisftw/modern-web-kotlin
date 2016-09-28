@@ -17,6 +17,7 @@ import services.SunService
 import services.WeatherService
 import models.*
 import services.DatabaseAuthProvider
+import uy.klutter.vertx.VertxInit
 
 
 class MainVerticle : AbstractVerticle() {
@@ -39,6 +40,7 @@ class MainVerticle : AbstractVerticle() {
 
   override fun start(startFuture: Future<Void>?) {
     logger.info("Starting the server")
+    VertxInit.ensure()
     val server = vertx.createHttpServer()
     val router = Router.router(vertx)
 
