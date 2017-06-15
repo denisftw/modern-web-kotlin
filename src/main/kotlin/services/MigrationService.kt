@@ -10,7 +10,7 @@ class MigrationService(dataSource: DataSource?) {
   init {
     flyway.dataSource = dataSource
   }
-  fun migrate(): Either<Exception, Int> = eitherTry {
+  fun migrate(): Either<Throwable, Int> = eitherTry {
     flyway.migrate()
   }
 }

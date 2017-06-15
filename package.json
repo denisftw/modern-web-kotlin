@@ -1,7 +1,7 @@
 {
   "name": "modern-web-kotlin",
   "version": "1.0.0",
-  "description": "Frontend code for the Modern Web Development with Scala book",
+  "description": "Frontend code for the Modern Web Development with Kotlin book",
   "main": "index.js",
   "scripts": {
     "watch": "webpack --watch",

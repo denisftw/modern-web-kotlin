@@ -8,24 +8,24 @@ import com.google.gson.JsonParser
 import models.SunInfo
 import nl.komponents.kovenant.Promise
 import nl.komponents.kovenant.task
-import org.joda.time.DateTime
-import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
 import java.nio.charset.Charset
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class SunService {
   fun getSunInfo(lat: Double, lon: Double): Promise<SunInfo, Exception> = task {
     val url = "http://api.sunrise-sunset.org/json?lat=$lat&lng=$lon&formatted=0"
-    val (request, response, result) = url.httpGet().responseString()
+    val (_, response) = url.httpGet().responseString()
     val jsonStr = String(response.data, Charset.forName("UTF-8"))
     val json = JsonParser().parse(jsonStr).obj
     val sunrise = json["results"]["sunrise"].string
     val sunset = json["results"]["sunset"].string
-    val sunriseTime = DateTime.parse(sunrise)
-    val sunsetTime = DateTime.parse(sunset)
-    val formatter = DateTimeFormat.forPattern("HH:mm:ss").
-        withZone(DateTimeZone.forID("Australia/Sydney"))
-    SunInfo(formatter.print(sunriseTime),
-        formatter.print(sunsetTime))
+
+    val sunriseTime = ZonedDateTime.parse(sunrise)
+    val sunsetTime = ZonedDateTime.parse(sunset)
+    val formatter = DateTimeFormatter.ofPattern("HH:mm:ss").
+        withZone(ZoneId.of("Australia/Sydney"))
+    SunInfo(sunriseTime.format(formatter), sunsetTime.format(formatter))
   }
 }

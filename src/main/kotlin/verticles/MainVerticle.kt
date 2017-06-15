@@ -64,7 +64,7 @@ class MainVerticle : AbstractVerticle() {
     migrationResult.fold({ exc ->
       logger.fatal("Exception occurred while performing migration", exc)
       vertx.close()
-    },{ res ->
+    },{ _ ->
       logger.debug("Migration successful or not needed")
     })
 

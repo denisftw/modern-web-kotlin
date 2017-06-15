@@ -23,4 +23,4 @@ In particular the book illustrates the following:
 
 ## Versions used
 
-The code uses Vert.x 3.3.2 and Kotlin 1.0.3
+The code uses Vert.x 3.4.1 and Kotlin 1.1.2-5

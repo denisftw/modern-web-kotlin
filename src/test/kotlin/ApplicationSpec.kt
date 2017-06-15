@@ -3,11 +3,14 @@ import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import io.kotlintest.Duration
-import io.kotlintest.Eventually
+import io.kotlintest.eventually
+import io.kotlintest.matchers.shouldBe
 import io.kotlintest.specs.StringSpec
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 import services.SunService
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 
@@ -17,11 +20,12 @@ class FuelTestClient(val testResponse: Response) : Client {
   }
 }
 
-class ApplicationSpec : StringSpec(), Eventually {
+class ApplicationSpec : StringSpec() {
   init {
     "DateTimeFormat must return 1970 as the beginning of epoch" {
-      val beginning = DateTime(0)
-      val formattedYear = DateTimeFormat.forPattern("YYYY").print(beginning)
+      val beginning = ZonedDateTime.ofInstant(Instant.ofEpochSecond(0),
+          ZoneId.systemDefault())
+      val formattedYear = beginning.format(DateTimeFormatter.ofPattern("YYYY"))
       formattedYear shouldBe "1970"
     }
 
