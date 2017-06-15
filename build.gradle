@@ -52,8 +52,8 @@ dependencies {
   compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
   compile "com.github.seratch:kotliquery:$kotliquery_version"
   testCompile "io.kotlintest:kotlintest:$kotlintest_version"
-  runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
-//  runtime "ch.qos.logback:logback-classic:$logback_version"
+//  runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
+  runtime "ch.qos.logback:logback-classic:$logback_version"
   compile "org.slf4j:slf4j-api:$slf4j_version"
   compile "uy.klutter:klutter-vertx3-jdk8:$klutter_version"
 }
