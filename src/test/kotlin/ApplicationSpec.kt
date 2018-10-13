@@ -2,16 +2,16 @@ import com.github.kittinunf.fuel.core.Client
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
-import io.kotlintest.Duration
 import io.kotlintest.eventually
-import io.kotlintest.matchers.shouldBe
+import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import services.SunService
+import java.net.URL
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.TimeUnit
 
 
 class FuelTestClient(val testResponse: Response) : Client {
@@ -36,7 +36,7 @@ class ApplicationSpec : StringSpec() {
               "sunset":"2016-04-15T07:31:52+00:00"
             }
         }"""
-      val testResponse = Response()
+      val testResponse = Response(URL("http://localhost/api/data"))
       testResponse.data = json.toByteArray()
       val testClient = FuelTestClient(testResponse)
       FuelManager.instance.client = testClient
@@ -46,7 +46,7 @@ class ApplicationSpec : StringSpec() {
       val sunService = SunService()
       val resultP = sunService.getSunInfo(lat, lon)
 
-      eventually(Duration(5, TimeUnit.SECONDS)) {
+      eventually(Duration.ofSeconds(5)) {
         val sunInfo = resultP.get()
         sunInfo.sunrise shouldBe "06:18:12"
       }

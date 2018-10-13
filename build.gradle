@@ -1,21 +1,21 @@
 buildscript {
-  ext.kotlin_version = '1.1.2-5'
-  ext.shadow_version = '2.0.0'
-  ext.functionale_version = '1.1'
+  ext.kotlin_version = '1.2.71'
+  ext.shadow_version = '4.0.1'
+  ext.funktionale_version = '1.2'
   ext.kovenant_version = '3.3.0'
-  ext.vertx_version = '3.4.1'
-  ext.fuel_version = '1.7.0'
+  ext.vertx_version = '3.5.3'
+  ext.fuel_version = '1.15.0'
   ext.kotson_version = '2.5.0'
-  ext.jackson_version = '2.8.7'
-  ext.hikari_version = '2.6.1'
+  ext.jackson_version = '2.9.4.1'
+  ext.hikari_version = '3.2.0'
   ext.flyway_version = '4.2.0'
   ext.pgjdbc_version = '42.1.1'
   ext.jbcrypt_version = '0.4.1'
-  ext.kotliquery_version = '1.1.2'
-  ext.kotlintest_version = '2.0.3'
+  ext.kotliquery_version = '1.2.1'
+  ext.kotlintest_version = '3.1.10'
   ext.logback_version = '1.2.3'
   ext.slf4j_version = '1.7.25'
-  ext.klutter_version = '1.20.1'
+  ext.klutter_version = '2.5.3'
 
   repositories {
     jcenter()
@@ -38,7 +38,7 @@ repositories {
 dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-  compile "org.funktionale:funktionale-all:$functionale_version"
+  compile "org.funktionale:funktionale-all:$funktionale_version"
   compile "nl.komponents.kovenant:kovenant:$kovenant_version"
   compile "io.vertx:vertx-core:$vertx_version"
   compile "io.vertx:vertx-web:$vertx_version"
@@ -51,11 +51,15 @@ dependencies {
   compile "org.postgresql:postgresql:$pgjdbc_version"
   compile "de.svenkubiak:jBCrypt:$jbcrypt_version"
   compile "com.github.seratch:kotliquery:$kotliquery_version"
-  testCompile "io.kotlintest:kotlintest:$kotlintest_version"
+  testCompile "io.kotlintest:kotlintest-runner-junit5:$kotlintest_version"
 //  runtime "org.slf4j:slf4j-jdk14:$slf4j_version"
   runtime "ch.qos.logback:logback-classic:$logback_version"
   compile "org.slf4j:slf4j-api:$slf4j_version"
-  compile "uy.klutter:klutter-vertx3-jdk8:$klutter_version"
+  compile "uy.kohesive.klutter:klutter-vertx3:$klutter_version"
+}
+
+test {
+  useJUnitPlatform()
 }
 
 mainClassName = 'io.vertx.core.Launcher'

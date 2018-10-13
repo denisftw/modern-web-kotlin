@@ -76,7 +76,7 @@ class MainVerticle : AbstractVerticle() {
     router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
     router.route().handler(UserSessionHandler.create(authProvider))
     router.route("/hidden/*").handler(RedirectAuthHandler.create(authProvider))
-    router.route("/login").handler(BodyHandler.create());
+    router.route("/login").handler(BodyHandler.create())
     router.route("/login").handler(FormLoginHandler.create(authProvider))
     router.route("/public/*").handler(staticHandler)
     router.get("/api/data").handler { ctx ->
@@ -94,7 +94,7 @@ class MainVerticle : AbstractVerticle() {
       }
     }
     fun renderTemplate(ctx: RoutingContext, template: String) {
-      templateEngine.render(ctx, template, { buf ->
+      templateEngine.render(ctx, "public/templates/", template) { buf ->
         val response = ctx.response()
         if (buf.failed()) {
           logger.error("Template rendering failed", buf.cause())
@@ -102,26 +102,26 @@ class MainVerticle : AbstractVerticle() {
         } else {
           response.end(buf.result())
         }
-      })
+      }
     }
     router.get("/hidden/admin").handler { ctx ->
       renderTemplate(ctx.put("username",
           ctx.user().principal().getString("username")),
-          "public/templates/admin.html")
+          "admin.html")
     }
     router.get("/loginpage").handler { ctx ->
-      renderTemplate(ctx,"public/templates/login.html" ) }
+      renderTemplate(ctx,"login.html" ) }
     router.get("/home").handler { ctx ->
-      renderTemplate(ctx, "public/templates/index.html") }
+      renderTemplate(ctx, "index.html") }
     router.get("/").handler { routingContext ->
       val response = routingContext.response()
       response.end("Hello World")
     }
 
-    server.requestHandler{ router.accept(it) }.listen(serverPort, { handler ->
+    server.requestHandler { router.accept(it) }.listen(serverPort) { handler ->
       if (!handler.succeeded()) {
         System.err.println("Failed to listen on port $serverPort")
       }
-    })
+    }
   }
 }
