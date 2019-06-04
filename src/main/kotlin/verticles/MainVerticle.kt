@@ -4,12 +4,13 @@ package verticles
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.zaxxer.hikari.HikariDataSource
 import io.vertx.core.*
+import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.*
 import io.vertx.ext.web.sstore.LocalSessionStore
-import io.vertx.ext.web.templ.ThymeleafTemplateEngine
+import io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine
 import nl.komponents.kovenant.functional.bind
 import nl.komponents.kovenant.functional.map
 import services.MigrationService
@@ -44,7 +45,7 @@ class MainVerticle : AbstractVerticle() {
     val server = vertx.createHttpServer()
     val router = Router.router(vertx)
 
-    val templateEngine = ThymeleafTemplateEngine.create()
+    val templateEngine = ThymeleafTemplateEngine.create(vertx)
 
     val weatherService = WeatherService()
     val sunService = SunService()
@@ -72,9 +73,10 @@ class MainVerticle : AbstractVerticle() {
         setWebRoot("public").setCachingEnabled(enableCaching)
 
     val authProvider = DatabaseAuthProvider(dataSource, jsonMapper)
+    val sessionHandler = SessionHandler.create(LocalSessionStore.create(vertx))
+    sessionHandler.setAuthProvider(authProvider)
     router.route().handler(CookieHandler.create())
-    router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)))
-    router.route().handler(UserSessionHandler.create(authProvider))
+    router.route().handler(sessionHandler)
     router.route("/hidden/*").handler(RedirectAuthHandler.create(authProvider))
     router.route("/login").handler(BodyHandler.create())
     router.route("/login").handler(FormLoginHandler.create(authProvider))
@@ -93,8 +95,8 @@ class MainVerticle : AbstractVerticle() {
         response.end(json)
       }
     }
-    fun renderTemplate(ctx: RoutingContext, template: String) {
-      templateEngine.render(ctx, "public/templates/", template) { buf ->
+    fun renderTemplate(ctx: RoutingContext, template: String, params: JsonObject = JsonObject()) {
+      templateEngine.render(params, "public/templates/$template") { buf ->
         val response = ctx.response()
         if (buf.failed()) {
           logger.error("Template rendering failed", buf.cause())
@@ -105,12 +107,12 @@ class MainVerticle : AbstractVerticle() {
       }
     }
     router.get("/hidden/admin").handler { ctx ->
-      renderTemplate(ctx.put("username",
-          ctx.user().principal().getString("username")),
-          "admin.html")
+      val params = JsonObject(mapOf(
+              "username" to ctx.user().principal().getString("username")))
+      renderTemplate(ctx, "admin.html", params)
     }
     router.get("/loginpage").handler { ctx ->
-      renderTemplate(ctx,"login.html" ) }
+      renderTemplate(ctx, "login.html" ) }
     router.get("/home").handler { ctx ->
       renderTemplate(ctx, "index.html") }
     router.get("/").handler { routingContext ->
@@ -118,7 +120,7 @@ class MainVerticle : AbstractVerticle() {
       response.end("Hello World")
     }
 
-    server.requestHandler { router.accept(it) }.listen(serverPort) { handler ->
+    server.requestHandler(router).listen(serverPort) { handler ->
       if (!handler.succeeded()) {
         System.err.println("Failed to listen on port $serverPort")
       }
