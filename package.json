@@ -35,7 +35,7 @@
     "webpack-cli": "^3.0.8"
   },
   "dependencies": {
-    "axios": "^0.14.0",
+    "axios": "^0.21.1",
     "react": "^16.4.1",
     "react-dom": "^16.4.1"
   }
